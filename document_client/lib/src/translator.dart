@@ -37,7 +37,7 @@ dynamic toDartType(AttributeValue value) {
   if (value.nullValue ?? false) {
     return null;
   } else if (value.n != null) {
-    return double.parse(value.n!);
+    return int.tryParse(value.n!) ?? double.parse(value.n!);
   } else if (value.s != null) {
     return value.s;
   } else if (value.boolValue != null) {
