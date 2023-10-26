@@ -13,7 +13,11 @@ String buildPubspecYaml(
   /// for some reason, the aws_shared_api is always picked up from dart packge hub
   var dependencies = '''
 dependencies:
-  shared_aws_api: ${protocolConfig.shared}''';
+  shared_aws_api:
+    git:
+      url: https://github.com/brighttank/aws_client.git
+      path: shared_aws_api''';
+
   var dependenciesOverride = '';
 
   if (isDevMode) {
@@ -37,7 +41,7 @@ $publishTo
 protocol: ${api.metadata.protocol}
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 $dependencies
 
